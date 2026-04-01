@@ -21,7 +21,7 @@ Internet
    │  Docker Compose — PostgreSQL 16 + Redis 7
    │
    ▼
-[Block Volume] 106GB — DB 데이터 영구 저장
+[Block Volume] 100GB — DB 데이터 영구 저장
 
 [Bastion Service] — SSH 접근 (외부 SSH 차단, Bastion만 허용)
 ```
@@ -32,7 +32,7 @@ Internet
 |--------|------|
 | A1 Flex 인스턴스 × 2 (총 4 OCPU / 24GB) | 무료 |
 | Boot Volume × 2 (50GB × 2 = 100GB) | 무료 |
-| Block Volume (106GB) | 무료 |
+| Block Volume (100GB) | 무료 |
 | Load Balancer (10Mbps Flex) | 무료 |
 | Bastion Service | 무료 |
 | VCN / 서브넷 / IGW | 무료 |

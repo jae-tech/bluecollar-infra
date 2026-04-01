@@ -1,0 +1,24 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars is gitignored — never commit it
+
+tenancy_ocid     = "ocid1.tenancy.oc1..xxxxxx"
+user_ocid        = "ocid1.user.oc1..xxxxxx"
+fingerprint      = "xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx"
+private_key_path = "~/.oci/oci_api_key.pem"
+region           = "ap-chuncheon-1"
+compartment_id   = "ocid1.compartment.oc1..xxxxxx"
+
+ssh_public_key = "ssh-rsa AAAA..."
+
+# Availability Domain index (0, 1, or 2)
+# If terraform apply fails with "out of capacity", change this to 1 or 2
+ad_index = 0
+
+# Instance sizing — total must not exceed 4 OCPU and 24 GB (Free Tier limit)
+prod_ocpu      = 2
+prod_memory_gb = 12
+devdb_ocpu     = 2
+devdb_memory_gb = 12
+
+# Backend app port (what your Docker container listens on)
+backend_app_port = 8080

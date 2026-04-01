@@ -1,0 +1,76 @@
+#cloud-config
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+
+runcmd:
+  # Install Docker (official repo)
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=arm64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" > /etc/apt/sources.list.d/docker.list
+  - apt-get update -y
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker ubuntu
+
+  # Mount Block Volume at /data (idempotent)
+  - |
+    DEVICE=/dev/sdb
+    if ! blkid $DEVICE; then
+      mkfs.ext4 $DEVICE
+    fi
+    mkdir -p /data
+    UUID=$(blkid -s UUID -o value $DEVICE)
+    grep -q "$UUID" /etc/fstab || echo "UUID=$UUID /data ext4 defaults,nofail 0 2" >> /etc/fstab
+    mount -a
+
+  # Create data directories for PostgreSQL and Redis
+  - mkdir -p /data/postgres /data/redis
+  - chown -R 999:999 /data/postgres /data/redis
+
+  # Create docker-compose file for DB stack
+  - mkdir -p /app
+  - chown ubuntu:ubuntu /app
+  - |
+    cat > /app/docker-compose.yml <<'EOF'
+    services:
+      postgres:
+        image: postgres:16-alpine
+        restart: unless-stopped
+        environment:
+          POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+        secrets:
+          - postgres_password
+        volumes:
+          - /data/postgres:/var/lib/postgresql/data
+        ports:
+          - "5432:5432"
+
+      redis:
+        image: redis:7-alpine
+        restart: unless-stopped
+        command: redis-server --appendonly yes
+        volumes:
+          - /data/redis:/data
+        ports:
+          - "6379:6379"
+
+    secrets:
+      postgres_password:
+        file: /app/secrets/postgres_password.txt
+    EOF
+
+  # Create secrets directory (password must be set manually after deploy)
+  - mkdir -p /app/secrets
+  - chown ubuntu:ubuntu /app/secrets
+  - echo "changeme" > /app/secrets/postgres_password.txt
+  - chmod 600 /app/secrets/postgres_password.txt
+  - chown ubuntu:ubuntu /app/secrets/postgres_password.txt

@@ -30,22 +30,22 @@ resource "oci_core_instance" "prod" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data           = base64encode(file("${path.module}/cloud-init/prod.yaml"))
+    user_data           = base64encode(templatefile("${path.module}/cloud-init/prod.yaml", { db_private_ip = var.db_private_ip }))
   }
 
   preserve_boot_volume = false
 }
 
-# Dev/DB instance — database + development server
-resource "oci_core_instance" "devdb" {
+# DB instance — database server
+resource "oci_core_instance" "db" {
   compartment_id      = var.compartment_id
   availability_domain = local.availability_domain
-  display_name        = "bluecollar-devdb"
+  display_name        = "bluecollar-db"
   shape               = "VM.Standard.A1.Flex"
 
   shape_config {
-    ocpus         = var.devdb_ocpu
-    memory_in_gbs = var.devdb_memory_gb
+    ocpus         = var.db_ocpu
+    memory_in_gbs = var.db_memory_gb
   }
 
   source_details {
@@ -55,15 +55,15 @@ resource "oci_core_instance" "devdb" {
   }
 
   create_vnic_details {
-    subnet_id        = oci_core_subnet.devdb.id
+    subnet_id        = oci_core_subnet.db.id
     assign_public_ip = true
-    display_name     = "bluecollar-devdb-vnic"
-    hostname_label   = "devdb"
+    display_name     = "bluecollar-db-vnic"
+    hostname_label   = "db"
   }
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data           = base64encode(file("${path.module}/cloud-init/devdb.yaml"))
+    user_data           = base64encode(file("${path.module}/cloud-init/db.yaml"))
   }
 
   preserve_boot_volume = false

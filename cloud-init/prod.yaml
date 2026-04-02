@@ -8,6 +8,7 @@ packages:
   - ca-certificates
   - curl
   - gnupg
+  - nfs-common
 
 runcmd:
   # Install Docker (official repo)
@@ -23,3 +24,8 @@ runcmd:
   # Create app directory
   - mkdir -p /app
   - chown ubuntu:ubuntu /app
+
+  # NFS 마운트: DB 서버의 /data/uploads → /app/uploads
+  - mkdir -p /app/uploads
+  - echo "${db_private_ip}:/data/uploads /app/uploads nfs defaults,nofail,_netdev 0 0" >> /etc/fstab
+  - mount -a || true

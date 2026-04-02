@@ -14,7 +14,7 @@ resource "oci_core_volume" "db_data" {
 # Attach volume to dev/db instance (paravirtualized — simpler than iSCSI on A1 Flex)
 resource "oci_core_volume_attachment" "db_data" {
   attachment_type = "paravirtualized"
-  instance_id     = oci_core_instance.devdb.id
+  instance_id     = oci_core_instance.db.id
   volume_id       = oci_core_volume.db_data.id
   display_name    = "bluecollar-db-data-attachment"
 

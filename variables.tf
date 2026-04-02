@@ -51,13 +51,13 @@ variable "prod_memory_gb" {
   default     = 12
 }
 
-variable "devdb_ocpu" {
+variable "db_ocpu" {
   description = "OCPU count for dev/db instance"
   type        = number
   default     = 2
 }
 
-variable "devdb_memory_gb" {
+variable "db_memory_gb" {
   description = "Memory (GB) for dev/db instance"
   type        = number
   default     = 12
@@ -67,4 +67,10 @@ variable "backend_app_port" {
   description = "Port your backend app listens on (for LB backend set)"
   type        = number
   default     = 8080
+}
+
+variable "db_private_ip" {
+  description = "DB 인스턴스 Private IP (NFS 마운트 주소). 배포 후 outputs.tf의 db_private_ip 값을 입력."
+  type        = string
+  default     = "10.0.1.54"
 }

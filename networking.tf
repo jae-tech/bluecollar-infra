@@ -30,10 +30,10 @@ resource "oci_core_security_list" "prod" {
   vcn_id         = oci_core_vcn.main.id
   display_name   = "bluecollar-sl-prod"
 
-  # SSH: Bastion only (VCN-internal injection — do NOT open to 0.0.0.0/0)
+  # SSH: open to internet
   ingress_security_rules {
     protocol  = "6" # TCP
-    source    = "10.0.0.0/16"
+    source    = "0.0.0.0/0"
     stateless = false
     tcp_options {
       min = 22
@@ -99,7 +99,7 @@ resource "oci_core_security_list" "prod" {
   # Outbound to dev/db: PostgreSQL
   egress_security_rules {
     protocol    = "6"
-    destination = "10.0.1.0/24" # devdb subnet
+    destination = "10.0.1.0/24" # db subnet
     stateless   = false
     tcp_options {
       min = 5432
@@ -117,13 +117,24 @@ resource "oci_core_security_list" "prod" {
       max = 6379
     }
   }
+
+  # Outbound to dev/db: NFS (업로드 파일 공유)
+  egress_security_rules {
+    protocol    = "6"
+    destination = "10.0.1.0/24"
+    stateless   = false
+    tcp_options {
+      min = 2049
+      max = 2049
+    }
+  }
 }
 
-# Security list for dev/db instance
-resource "oci_core_security_list" "devdb" {
+# Security list for db instance
+resource "oci_core_security_list" "db" {
   compartment_id = var.compartment_id
   vcn_id         = oci_core_vcn.main.id
-  display_name   = "bluecollar-sl-devdb"
+  display_name   = "bluecollar-sl-db"
 
   # SSH: Bastion only
   ingress_security_rules {
@@ -155,6 +166,17 @@ resource "oci_core_security_list" "devdb" {
     tcp_options {
       min = 6379
       max = 6379
+    }
+  }
+
+  # NFS from prod subnet (업로드 파일 공유)
+  ingress_security_rules {
+    protocol  = "6"
+    source    = "10.0.0.0/24"
+    stateless = false
+    tcp_options {
+      min = 2049
+      max = 2049
     }
   }
 
@@ -254,15 +276,15 @@ resource "oci_core_subnet" "prod" {
   security_list_ids = [oci_core_security_list.prod.id]
 }
 
-# Dev/DB subnet (public)
-resource "oci_core_subnet" "devdb" {
+# DB subnet (public)
+resource "oci_core_subnet" "db" {
   compartment_id    = var.compartment_id
   vcn_id            = oci_core_vcn.main.id
   cidr_block        = "10.0.1.0/24"
-  display_name      = "bluecollar-subnet-devdb"
-  dns_label         = "devdb"
+  display_name      = "bluecollar-subnet-db"
+  dns_label         = "db"
   route_table_id    = oci_core_route_table.public.id
-  security_list_ids = [oci_core_security_list.devdb.id]
+  security_list_ids = [oci_core_security_list.db.id]
 }
 
 # Load Balancer subnet (public)

@@ -17,8 +17,8 @@ ad_index = 0
 # Instance sizing — total must not exceed 4 OCPU and 24 GB (Free Tier limit)
 prod_ocpu      = 2
 prod_memory_gb = 12
-devdb_ocpu     = 2
-devdb_memory_gb = 12
+db_ocpu     = 2
+db_memory_gb = 12
 
 # Backend app port (what your Docker container listens on)
 backend_app_port = 8080

@@ -188,6 +188,44 @@ sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 ```
 
+### 11. zsh + Oh My Zsh + Powerlevel10k
+
+```bash
+sudo apt-get install -y zsh fonts-powerline
+
+# 기본 쉘 변경
+sudo chsh -s /usr/bin/zsh ubuntu
+
+# Oh My Zsh 설치
+sudo -u ubuntu sh -c 'RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+
+# Powerlevel10k 테마
+sudo -u ubuntu git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  /home/ubuntu/.oh-my-zsh/custom/themes/powerlevel10k
+
+# 플러그인
+sudo -u ubuntu git clone https://github.com/zsh-users/zsh-autosuggestions \
+  /home/ubuntu/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+sudo -u ubuntu git clone https://github.com/zsh-users/zsh-syntax-highlighting \
+  /home/ubuntu/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+# .zshrc 작성
+sudo -u ubuntu tee /home/ubuntu/.zshrc <<'EOF'
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(git docker docker-compose zsh-autosuggestions zsh-syntax-highlighting)
+source $ZSH/oh-my-zsh.sh
+
+# Aliases
+alias ll='ls -alF'
+alias dc='docker compose'
+alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+EOF
+```
+
+> 재로그인하면 Powerlevel10k 초기 설정 wizard가 실행됩니다.
+> 이후 `p10k configure` 로 언제든 재설정 가능합니다.
+
 ---
 
 ## Prod 서버 복구
@@ -240,6 +278,10 @@ sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 ```
 
+### 6. zsh + Oh My Zsh + Powerlevel10k
+
+DB 서버와 동일 (위 참고)
+
 ---
 
 ## 추천 패키지 (선택)
@@ -269,11 +311,13 @@ sudo apt-get install -y ncdu jq rsync logrotate auditd chrony lsof strace
 - [ ] `sudo systemctl status db-stack` — 서비스 등록 확인
 - [ ] `sudo systemctl status nfs-kernel-server` — NFS 실행 확인
 - [ ] `sudo ufw status` — 포트 55432, 6379, 2049, 22 허용 확인
+- [ ] `echo $SHELL` — `/usr/bin/zsh` 확인
 
 ### Prod 서버
 - [ ] `mount | grep uploads` — NFS 마운트 확인
 - [ ] `sudo ufw status` — 포트 22, 80, 443 허용 확인
 - [ ] `docker compose ps` — 앱 컨테이너 실행 확인
+- [ ] `echo $SHELL` — `/usr/bin/zsh` 확인
 
 ---
 

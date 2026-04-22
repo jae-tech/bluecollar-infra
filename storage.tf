@@ -4,10 +4,10 @@ resource "oci_core_volume" "db_data" {
   compartment_id      = var.compartment_id
   availability_domain = local.availability_domain
   display_name        = "bluecollar-db-data"
-  size_in_gbs         = 106
+  size_in_gbs         = 100
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 

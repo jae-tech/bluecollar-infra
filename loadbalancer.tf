@@ -37,42 +37,16 @@ resource "oci_load_balancer_backend" "prod" {
   port             = var.backend_app_port
 }
 
-# HTTP listener — redirects to HTTPS (or serves directly if no cert yet)
+# HTTP listener — Cloudflare Flexible SSL 모드용 (Cloudflare가 HTTPS 처리, LB까지는 HTTP)
 resource "oci_load_balancer_listener" "http" {
   load_balancer_id         = oci_load_balancer_load_balancer.main.id
   name                     = "http-listener"
   default_backend_set_name = oci_load_balancer_backend_set.prod.name
   port                     = 80
   protocol                 = "HTTP"
-
-  # Redirect all HTTP to HTTPS
-  rule_set_names = ["http_to_https"]
-
-  depends_on = [oci_load_balancer_rule_set.http_to_https]
+  rule_set_names           = []
 }
 
-# Rule set: HTTP → HTTPS redirect (301)
-resource "oci_load_balancer_rule_set" "http_to_https" {
-  load_balancer_id = oci_load_balancer_load_balancer.main.id
-  name             = "http_to_https"
-
-  items {
-    action = "REDIRECT"
-    conditions {
-      attribute_name  = "PATH"
-      attribute_value = "/"
-      operator        = "FORCE_LONGEST_PREFIX_MATCH"
-    }
-    redirect_uri {
-      protocol = "HTTPS"
-      port     = 443
-      host     = "{host}"
-      path     = "/{path}"
-      query    = "?{query}"
-    }
-    response_code = 301
-  }
-}
 
 # -----------------------------------------------------------------------
 # HTTPS listener — add after you have a domain + certificate

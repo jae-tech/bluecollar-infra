@@ -41,6 +41,17 @@ resource "oci_core_security_list" "prod" {
     }
   }
 
+  # HTTP from internet (certbot HTTP-01 challenge + direct access)
+  ingress_security_rules {
+    protocol  = "6"
+    source    = "0.0.0.0/0"
+    stateless = false
+    tcp_options {
+      min = 80
+      max = 80
+    }
+  }
+
   # App traffic from Load Balancer subnet
   ingress_security_rules {
     protocol  = "6"
@@ -102,8 +113,8 @@ resource "oci_core_security_list" "prod" {
     destination = "10.0.1.0/24" # db subnet
     stateless   = false
     tcp_options {
-      min = 5432
-      max = 5432
+      min = 55432
+      max = 55432
     }
   }
 
@@ -136,10 +147,10 @@ resource "oci_core_security_list" "db" {
   vcn_id         = oci_core_vcn.main.id
   display_name   = "bluecollar-sl-db"
 
-  # SSH: Bastion only
+  # SSH: open to internet (temporary — switch to prod jump later)
   ingress_security_rules {
     protocol  = "6"
-    source    = "10.0.0.0/16"
+    source    = "0.0.0.0/0"
     stateless = false
     tcp_options {
       min = 22
@@ -147,21 +158,32 @@ resource "oci_core_security_list" "db" {
     }
   }
 
-  # PostgreSQL from prod subnet
+  # PostgreSQL: prod subnet
   ingress_security_rules {
     protocol  = "6"
     source    = "10.0.0.0/24" # prod subnet
     stateless = false
     tcp_options {
-      min = 5432
-      max = 5432
+      min = 55432
+      max = 55432
     }
   }
 
-  # Redis from prod subnet
+  # PostgreSQL: admin IP
   ingress_security_rules {
     protocol  = "6"
-    source    = "10.0.0.0/24"
+    source    = "172.30.128.1/32"
+    stateless = false
+    tcp_options {
+      min = 55432
+      max = 55432
+    }
+  }
+
+  # Redis: prod subnet only
+  ingress_security_rules {
+    protocol  = "6"
+    source    = "10.0.0.0/24" # prod subnet
     stateless = false
     tcp_options {
       min = 6379
@@ -169,10 +191,10 @@ resource "oci_core_security_list" "db" {
     }
   }
 
-  # NFS from prod subnet (업로드 파일 공유)
+  # NFS: prod subnet only
   ingress_security_rules {
     protocol  = "6"
-    source    = "10.0.0.0/24"
+    source    = "10.0.0.0/24" # prod subnet
     stateless = false
     tcp_options {
       min = 2049

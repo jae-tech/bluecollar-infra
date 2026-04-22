@@ -4,13 +4,51 @@ package_update: true
 package_upgrade: false
 
 packages:
+  # Docker 설치 필수
   - apt-transport-https
   - ca-certificates
   - curl
   - gnupg
+
+  # NFS 클라이언트
   - nfs-common
 
+  # 시스템 기본 도구
+  - vim
+  - git
+  - htop
+  - unzip
+  - wget
+  - tmux
+
+  # 네트워크 진단
+  - net-tools
+  - dnsutils
+  - iputils-ping
+  - telnet
+  - nmap
+
+  # 시스템 모니터링
+  - sysstat
+  - iotop
+
+  # 보안
+  - ufw
+  - fail2ban
+
 runcmd:
+  # 방화벽 설정 (OCI Security List와 이중 보호)
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
+
+  # SSH 브루트포스 방어
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+
   # Install Docker (official repo)
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -21,6 +59,7 @@ runcmd:
   - systemctl enable docker
   - systemctl start docker
   - usermod -aG docker ubuntu
+
   # Create app directory
   - mkdir -p /app
   - chown ubuntu:ubuntu /app

@@ -89,6 +89,8 @@ sudo chmod 700 /app/secrets
 `/app/docker-compose.yml` 작성:
 
 ```yaml
+name: bluecollar-db
+
 services:
   postgres:
     image: postgres:17-alpine

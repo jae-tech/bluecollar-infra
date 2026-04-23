@@ -85,6 +85,8 @@ runcmd:
   - chown ubuntu:ubuntu /app
   - |
     cat > /app/docker-compose.yml <<'EOF'
+    name: bluecollar-db
+
     services:
       postgres:
         image: postgres:17-alpine

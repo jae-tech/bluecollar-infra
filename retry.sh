@@ -1,17 +1,20 @@
 #!/bin/bash
-# 1시간마다 terraform apply 재시도 — 인스턴스 생성 성공하면 자동 종료
 
-cd "$(dirname "$0")"
+# OCI Free Tier 용량 부족 시 terraform apply 재시도 스크립트
+# 사용법: ./retry.sh [ad_index]
+# 예시: ./retry.sh        (기본 ad_index=0)
+#       ./retry.sh 1      (ad_index=1)
 
-while true; do
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] terraform apply 시도..."
-  terraform apply -auto-approve 2>&1
+AD_INDEX=${1:-0}
+INTERVAL=60  # 1분
 
-  if [ $? -eq 0 ]; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 성공! 모든 리소스 생성 완료."
-    break
-  fi
+echo "terraform apply 재시도 시작 (ad_index=$AD_INDEX, 간격 ${INTERVAL}초)"
 
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] 실패. 10분 후 재시도..."
-  sleep 600
+until terraform apply -auto-approve -var="ad_index=$AD_INDEX"; do
+  echo ""
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] 용량 부족. ${INTERVAL}초 후 재시도..."
+  sleep $INTERVAL
 done
+
+echo ""
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 성공!"

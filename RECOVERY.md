@@ -94,6 +94,7 @@ name: bluecollar-db
 services:
   postgres:
     image: postgres:17-alpine
+    container_name: bluecollar-postgres
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
@@ -106,6 +107,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    container_name: bluecollar-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:

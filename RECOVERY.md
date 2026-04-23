@@ -91,7 +91,7 @@ sudo chmod 700 /app/secrets
 ```yaml
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password

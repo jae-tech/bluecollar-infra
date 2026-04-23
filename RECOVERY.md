@@ -141,6 +141,27 @@ cd /app && docker compose up -d
 docker compose ps  # postgres, redis 모두 Up 확인
 ```
 
+> **주의**: 비밀번호 변경 시 컨테이너를 반드시 재시작해야 반영됩니다.
+> `postgres_password.txt`만 바꾸면 안 되고 `docker compose down && docker compose up -d` 필요.
+
+### PostgreSQL 데이터 초기화 (유저/DB 재생성 필요 시)
+
+기존 데이터가 있으면 `POSTGRES_USER`, `POSTGRES_DB` 환경변수가 무시됩니다.
+완전히 초기화하려면:
+
+```bash
+cd /app && docker compose down && \
+  sudo rm -rf /data/postgres && \
+  sudo mkdir /data/postgres && \
+  sudo chown 999:999 /data/postgres && \
+  docker compose up -d && \
+  sleep 3 && \
+  docker logs bluecollar-postgres | tail -20
+```
+
+초기화 성공 시 로그에 `database system is ready to accept connections`가 보이고
+`Skipping initialization` 메시지가 없어야 합니다.
+
 ### 7. systemd 서비스 등록 (재부팅 시 자동 시작)
 
 ```bash

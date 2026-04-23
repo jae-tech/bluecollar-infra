@@ -97,6 +97,7 @@ services:
     container_name: bluecollar-postgres
     restart: unless-stopped
     environment:
+      POSTGRES_USER: bluecollar
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets:
       - postgres_password

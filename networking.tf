@@ -183,10 +183,21 @@ resource "oci_core_security_list" "db" {
     }
   }
 
-  # PostgreSQL: admin IP
+  # PostgreSQL: admin IP (home)
   ingress_security_rules {
     protocol  = "6"
     source    = "172.30.128.1/32"
+    stateless = false
+    tcp_options {
+      min = 55432
+      max = 55432
+    }
+  }
+
+  # PostgreSQL: admin IP (office)
+  ingress_security_rules {
+    protocol  = "6"
+    source    = "211.40.81.130/32"
     stateless = false
     tcp_options {
       min = 55432

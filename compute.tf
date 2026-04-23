@@ -34,6 +34,10 @@ resource "oci_core_instance" "prod" {
   }
 
   preserve_boot_volume = false
+
+  lifecycle {
+    ignore_changes = [metadata, source_details]
+  }
 }
 
 # DB instance — database server
@@ -67,4 +71,8 @@ resource "oci_core_instance" "db" {
   }
 
   preserve_boot_volume = false
+
+  lifecycle {
+    ignore_changes = [metadata, source_details]
+  }
 }

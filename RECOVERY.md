@@ -98,6 +98,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: bluecollar
+      POSTGRES_DB: bluecollar
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets:
       - postgres_password

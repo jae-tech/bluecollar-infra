@@ -115,6 +115,10 @@ runcmd:
     secrets:
       postgres_password:
         file: /app/secrets/postgres_password.txt
+
+    networks:
+      default:
+        name: bluecollar-db-network
     EOF
 
   # Create secrets directory

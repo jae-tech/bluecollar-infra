@@ -119,6 +119,10 @@ services:
 secrets:
   postgres_password:
     file: /app/secrets/postgres_password.txt
+
+networks:
+  default:
+    name: bluecollar-db-network
 ```
 
 비밀번호 파일 설정 (기존 비밀번호 입력):

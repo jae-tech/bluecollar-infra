@@ -41,6 +41,13 @@ resource "oci_core_security_list" "prod" {
     }
   }
 
+  # ICMP from VCN (internal communication with db subnet)
+  ingress_security_rules {
+    protocol  = "1" # ICMP
+    source    = "10.0.0.0/16" # entire VCN
+    stateless = false
+  }
+
   # HTTP from internet (certbot HTTP-01 challenge + direct access)
   ingress_security_rules {
     protocol  = "6"
@@ -156,6 +163,13 @@ resource "oci_core_security_list" "db" {
       min = 22
       max = 22
     }
+  }
+
+  # ICMP from VCN (internal communication with prod subnet)
+  ingress_security_rules {
+    protocol  = "1" # ICMP
+    source    = "10.0.0.0/16" # entire VCN
+    stateless = false
   }
 
   # PostgreSQL: prod subnet
